@@ -1,3 +1,4 @@
+import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -5,6 +6,24 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
+        // If --cli is passed, or if headless environment, run CLI mode
+        boolean forceCli = false;
+        for (String arg : args) {
+            if ("--cli".equalsIgnoreCase(arg)) {
+                forceCli = true;
+                break;
+            }
+        }
+
+        if (!forceCli && !GraphicsEnvironment.isHeadless()) {
+            // Launch GUI by default in desktop environment
+            RestaurantBillGUI.main(args);
+        } else {
+            runCli();
+        }
+    }
+
+    public static void runCli() {
         Scanner scanner = new Scanner(System.in);
 
         // 1. Define the menu
@@ -69,34 +88,10 @@ public class Main {
         Bill bill = new Bill(order, taxRate, discount, serviceChargeRate);
 
         // 6. Print receipt
-        printReceipt(order, bill, taxRate, serviceChargeRate, discount);
+        System.out.println();
+        System.out.print(bill.generateReceiptText());
 
         scanner.close();
-    }
-
-    private static void printReceipt(Order order, Bill bill, double taxRate,
-                                      double serviceChargeRate, double discount) {
-        System.out.println("\n===== BILL RECEIPT =====");
-        System.out.printf("%-25s %5s %10s %12s%n", "Item", "Qty", "Price", "Total");
-        System.out.println("--------------------------------------------------");
-
-        for (OrderItem oi : order.getItems()) {
-            System.out.printf("%-25s %5d %10.2f %12.2f%n",
-                    oi.getMenuItem().getName(),
-                    oi.getQuantity(),
-                    oi.getMenuItem().getPrice(),
-                    oi.getLineTotal());
-        }
-
-        System.out.println("--------------------------------------------------");
-        System.out.printf("%-25s %22.2f%n", "Subtotal:", bill.getSubtotal());
-        System.out.printf("%-25s %22.2f%n", "Discount (" + discount + "%):", bill.getDiscountAmount());
-        System.out.printf("%-25s %22.2f%n", "Tax (" + (taxRate * 100) + "%):", bill.getTaxAmount());
-        System.out.printf("%-25s %22.2f%n", "Service Charge (" + (serviceChargeRate * 100) + "%):", bill.getServiceCharge());
-        System.out.println("--------------------------------------------------");
-        System.out.printf("%-25s %22.2f%n", "TOTAL:", bill.getFinalTotal());
-        System.out.println("=====================================");
-        System.out.println("Thank you for dining with us!");
     }
 
     private static int readInt(Scanner scanner) {

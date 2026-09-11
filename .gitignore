@@ -1,0 +1,11 @@
+# Build output
+target/
+*.class
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+nbproject/private/
+build/
+dist/
