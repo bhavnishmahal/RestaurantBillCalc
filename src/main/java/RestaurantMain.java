@@ -1,10 +1,10 @@
 import java.awt.GraphicsEnvironment;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Main {
-
+public class RestaurantMain 
+{
+   
     public static void main(String[] args) {
         // If --cli is passed, or if headless environment, run CLI mode
         boolean forceCli = false;
@@ -16,8 +16,8 @@ public class Main {
         }
 
         if (!forceCli && !GraphicsEnvironment.isHeadless()) {
-            // Launch GUI by default in desktop environment
-            RestaurantBillGUI.main(args);
+            // Show the menu (with pictures) first, then move on ("aage") to the order screen
+            MenuDisplayFrame.main(args);
         } else {
             runCli();
         }
@@ -26,23 +26,16 @@ public class Main {
     public static void runCli() {
         Scanner scanner = new Scanner(System.in);
 
-        // 1. Define the menu
-        List<MenuItem> menu = new ArrayList<>();
-        menu.add(new MenuItem("Paneer Butter Masala", 220.0, "Main Course"));
-        menu.add(new MenuItem("Veg Biryani", 180.0, "Main Course"));
-        menu.add(new MenuItem("Butter Naan", 40.0, "Bread"));
-        menu.add(new MenuItem("Spring Rolls", 150.0, "Starter"));
-        menu.add(new MenuItem("Gulab Jamun", 90.0, "Dessert"));
-        menu.add(new MenuItem("Masala Chai", 50.0, "Beverage"));
-        menu.add(new MenuItem("Cold Coffee", 110.0, "Beverage"));
+        // 1. Menu now comes from the shared MenuData class
+        List<MenuItem> menu = MenuData.getDefaultMenu();
 
         // 2. Display menu
         System.out.println("===== WELCOME TO THE RESTAURANT =====");
         System.out.println("\n--- MENU ---");
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.get(i);
-            System.out.printf("%d. %-25s Rs. %.2f  [%s]%n",
-                    i + 1, item.getName(), item.getPrice(), item.getCategory());
+            System.out.printf("%d. %s %-25s Rs. %.2f  [%s]%n",
+                    i + 1, item.getIcon(), item.getName(), item.getPrice(), item.getCategory());
         }
 
         // 3. Take orders in a loop
@@ -109,4 +102,20 @@ public class Main {
         }
         return scanner.nextDouble();
     }
-}
+
+   
+    
+
+    
+    
+
+   
+   
+
+    
+    
+
+  
+} 
+    
+

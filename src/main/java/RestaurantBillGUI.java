@@ -1,15 +1,19 @@
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Basic Swing GUI for Restaurant Bill Calculator.
  */
 public class RestaurantBillGUI extends JFrame {
+
+    private static final Color INK = new Color(38, 34, 30);
+    private static final Color CREAM = new Color(250, 247, 241);
+    private static final Color TERRACOTTA = new Color(181, 83, 54);
 
     private List<MenuItem> menu;
     private Order currentOrder;
@@ -38,30 +42,32 @@ public class RestaurantBillGUI extends JFrame {
     private JButton btnViewReceipt;
 
     public RestaurantBillGUI() {
+        this(new Order());
+    }
+
+    public RestaurantBillGUI(Order order) {
         super("Restaurant Bill Calculator");
-        this.currentOrder = new Order();
+        this.currentOrder = order == null ? new Order() : order;
         initDefaultMenu();
         initUI();
     }
 
     private void initDefaultMenu() {
-        menu = new ArrayList<>();
-        menu.add(new MenuItem("Paneer Butter Masala", 220.0, "Main Course"));
-        menu.add(new MenuItem("Veg Biryani", 180.0, "Main Course"));
-        menu.add(new MenuItem("Butter Naan", 40.0, "Bread"));
-        menu.add(new MenuItem("Spring Rolls", 150.0, "Starter"));
-        menu.add(new MenuItem("Gulab Jamun", 90.0, "Dessert"));
-        menu.add(new MenuItem("Masala Chai", 50.0, "Beverage"));
-        menu.add(new MenuItem("Cold Coffee", 110.0, "Beverage"));
+        // Menu now comes from the shared MenuData class instead of being
+        // hardcoded here separately from Main.java
+        menu = MenuData.getDefaultMenu();
     }
 
     private void initUI() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        getContentPane().setBackground(CREAM);
         setLayout(new BorderLayout(10, 10));
 
         // 1. TOP PANEL: Add Items
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        topPanel.setBorder(BorderFactory.createTitledBorder("1. Add Menu Item"));
+        topPanel.setBackground(INK);
+        topPanel.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(INK), "ADD ANOTHER ITEM"));
 
         topPanel.add(new JLabel("Item:"));
         cmbMenuItems = new JComboBox<>(menu.toArray(new MenuItem[0]));
@@ -74,10 +80,18 @@ public class RestaurantBillGUI extends JFrame {
         btnAddItem = new JButton("Add to Order");
         topPanel.add(btnAddItem);
 
+        styleButton(btnAddItem, TERRACOTTA, Color.WHITE);
+        for (Component component : topPanel.getComponents()) {
+            if (component instanceof JLabel) {
+                component.setForeground(Color.WHITE);
+            }
+        }
+
         add(topPanel, BorderLayout.NORTH);
 
         // 2. CENTER PANEL: Order Table & item controls
         JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
+        centerPanel.setBackground(CREAM);
         centerPanel.setBorder(BorderFactory.createTitledBorder("2. Current Order"));
 
         String[] columns = {"Item Name", "Category", "Price (Rs.)", "Qty", "Total (Rs.)"};
@@ -104,6 +118,7 @@ public class RestaurantBillGUI extends JFrame {
 
         // 3. BOTTOM PANEL: Settings & Bill Summary
         JPanel bottomPanel = new JPanel(new BorderLayout(10, 10));
+        bottomPanel.setBackground(CREAM);
         bottomPanel.setBorder(BorderFactory.createTitledBorder("3. Bill Calculation"));
 
         // Inputs Panel (Discount, Tax, Service Charge)
@@ -159,6 +174,9 @@ public class RestaurantBillGUI extends JFrame {
         btnCalculate.setFont(btnCalculate.getFont().deriveFont(Font.BOLD));
         btnViewReceipt = new JButton("View Receipt");
 
+        styleButton(btnCalculate, INK, Color.WHITE);
+        styleButton(btnViewReceipt, TERRACOTTA, Color.WHITE);
+
         actionsPanel.add(btnCalculate);
         actionsPanel.add(btnViewReceipt);
         bottomPanel.add(actionsPanel, BorderLayout.SOUTH);
@@ -167,9 +185,20 @@ public class RestaurantBillGUI extends JFrame {
 
         // Wire Event Listeners
         wireEvents();
+        refreshTable();
+        updateBillDisplay();
 
         pack();
         setLocationRelativeTo(null);
+    }
+
+    private void styleButton(JButton button, Color background, Color foreground) {
+        button.setUI(new BasicButtonUI());
+        button.setBackground(background);
+        button.setForeground(foreground);
+        button.setOpaque(true);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 14, 8, 14));
     }
 
     private void wireEvents() {

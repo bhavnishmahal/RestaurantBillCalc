@@ -27,6 +27,22 @@ public class Order {
         return items.removeIf(oi -> oi.getMenuItem().getName().equalsIgnoreCase(menuItem.getName()));
     }
 
+    public boolean removeQuantity(MenuItem menuItem, int quantity) {
+        if (menuItem == null || quantity <= 0) return false;
+        for (int index = 0; index < items.size(); index++) {
+            OrderItem item = items.get(index);
+            if (item.getMenuItem().getName().equalsIgnoreCase(menuItem.getName())) {
+                if (item.getQuantity() <= quantity) {
+                    items.remove(index);
+                } else {
+                    item.addQuantity(-quantity);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean removeItem(int index) {
         if (index >= 0 && index < items.size()) {
             items.remove(index);
